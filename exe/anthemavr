@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require 'anthemavr'
+require 'thor'
+
+class AnthemAVRCLI < Thor
+  class_option :verbose, type: :boolean, default: false
+
+  desc "mqtt PORT MQTT_URI", "Run an MQTT bridge to control the Anthem AVR at host"
+  option :"device-id", default: "anthem-avr", desc: "The Homie Device ID"
+  option :"root-topic", default: "homie", desc: "The root Homie topic"
+  def mqtt(host, mqtt_uri)
+    require 'anthem/avr/cli/mqtt'
+
+    projector = Anthem::AVR.new(host)
+    homie = MQTT::Homie::Device.new(
+      options["device-id"],
+      "Anthem AVR",
+      mqtt: mqtt_uri,
+      root_topic: options["root-topic"])
+
+    Anthem::AVR::CLI::MQTT.new(projector, homie)
+  end
+
+  desc "watch PORT", "Connect to an AVR and log incoming messages"
+  def watch(port)
+    avr = Anthem::AVR.new(port)
+    loop { sleep 60 }
+  end
+end
+
+AnthemAVRCLI.start(ARGV)
