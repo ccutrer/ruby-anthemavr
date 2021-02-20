@@ -1,20 +1,9 @@
 PATH
-  remote: ../homie-mqtt
-  specs:
-    homie-mqtt (1.1.0)
-      ccutrer-mqtt (~> 1.0)
-
-PATH
-  remote: ../ruby-mqtt
-  specs:
-    ccutrer-mqtt (1.0.0)
-
-PATH
   remote: .
   specs:
     anthemavr (0.1.0)
       ccutrer-serialport (~> 1.1)
-      homie-mqtt (~> 1.1)
+      homie-mqtt (~> 1.2)
       net-telnet-rfc2217 (~> 1.0)
       thor (~> 1.1)
 
@@ -25,6 +14,9 @@ GEM
     ccutrer-serialport (1.1.0)
       ffi (~> 1.9, >= 1.9.3)
     ffi (1.14.2)
+    homie-mqtt (1.2.0)
+      mqtt-ccutrer (~> 1.0)
+    mqtt-ccutrer (1.0.0)
     net-telnet (0.2.0)
     net-telnet-rfc2217 (1.0.0)
       net-telnet (~> 0.2.0)
@@ -37,8 +29,6 @@ PLATFORMS
 DEPENDENCIES
   anthemavr!
   byebug (~> 9.0)
-  ccutrer-mqtt!
-  homie-mqtt!
   rake (~> 13.0)
 
 BUNDLED WITH
