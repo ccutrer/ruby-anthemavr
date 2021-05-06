@@ -212,18 +212,18 @@ module Anthem
       'All Channel Mono',
     ].freeze
 
-    LANGUAGE = [
-      'English',
-      'Chinese',
-      'German',
-      'Spanish',
-      'French',
-      'Italian',
+    LANGUAGE = %w[
+      English
+      Chinese
+      German
+      Spanish
+      French
+      Italian
     ].freeze
 
-    UNITS = [
-      :imperial,
-      :metric
+    UNITS = %i[
+      imperial
+      metric
     ].freeze
 
     ON_SCREEN_DISPLAY = [
@@ -294,9 +294,9 @@ module Anthem
       { command: 'SSSPpB', name: :height2, datatype: :boolean },
       { command: 'SSSPpC', name: :height3, datatype: :boolean },
 
-      # todo: bass management
-      # todo: listener position
-      # todo: level calibration
+      # TODO: bass management
+      # TODO: listener position
+      # TODO: level calibration
 
       { command: 'ICN', name: :input_count, datatype: :integer },
       { command: 'ISiIN', name: :name, datatype: :string, max_length: 16 },
@@ -344,7 +344,7 @@ module Anthem
       'i' => 30,
       'p' => 4,
       'z' => 2,
-    }
+    }.freeze
 
     COMMANDS_HASH = {}
 
@@ -419,7 +419,7 @@ module Anthem
 
       avr = "@avr." unless klass == self
       command = property[:command].inspect
-      command = command.sub(sub_object_type, '#{index}') if sub_object_type
+      command = command.sub(sub_object_type, '#{index}') if sub_object_type # rubocop:disable Lint/InterpolationCheck
       klass.class_eval <<~RUBY, __FILE__, __LINE__ + 1
         def #{property[:name]}=(value)
           #{code}
@@ -489,10 +489,10 @@ module Anthem
           error_type = command[1]
           command = command[2..-1]
           case error_type
-          when 'E'; Anthem.logger.warn("Cannot execute command #{command} at this time")
-          when 'I'; Anthem.logger.error("AVR reports unrecognized command #{command}")
-          when 'R'; Anthem.logger.error("Out of range: #{command}")
-          when 'Z'; Anthem.logger.warn("Cannot execute command #{command} at this time because the zone is off")
+          when 'E' then Anthem.logger.warn("Cannot execute command #{command} at this time")
+          when 'I' then Anthem.logger.error("AVR reports unrecognized command #{command}")
+          when 'R' then Anthem.logger.error("Out of range: #{command}")
+          when 'Z' then Anthem.logger.warn("Cannot execute command #{command} at this time because the zone is off")
           end
           next
         end
@@ -513,9 +513,9 @@ module Anthem
 
         sub_object_type = (property[:command] =~ /[ipz]/) && $&
         sub_objects = case sub_object_type
-                      when 'i'; inputs
-                      when 'p'; profiles
-                      when 'z'; zones
+                      when 'i' then inputs
+                      when 'p' then profiles
+                      when 'z' then zones
                       else; object = self
                       end
 
@@ -537,7 +537,7 @@ module Anthem
                 when :integer; raw_value.to_i
                 when :float; raw_value.to_f
                 when :enum; self.class.const_get(property[:enum], false)[raw_value.to_i]
-                #else; raise "unknown datatype for #{property[:command]}"
+                  # else; raise "unknown datatype for #{property[:command]}"
                 end
 
         object.instance_variable_set(:"@#{property[:name]}", value)
