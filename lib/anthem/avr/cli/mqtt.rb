@@ -10,6 +10,13 @@ module Anthem
           @avr = avr
           @homie = homie
 
+          # wait until we know how many inputs we have
+          loop do
+            break if avr.input_count
+
+            sleep 0.5
+          end
+
           avr.set_notifier do |object, property_name, value|
             if property_name == :input_count
               publish_objects(Input)
@@ -46,11 +53,6 @@ module Anthem
             avr.delete_input(value)
           end
 
-          # wait until we know how many inputs we have
-          loop do
-            break if avr.input_count
-            sleep 0.5
-          end
           publish_objects(Input)
 
           homie.publish
