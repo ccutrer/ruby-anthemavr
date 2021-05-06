@@ -1,6 +1,8 @@
+require 'anthem/baseobject'
+
 module Anthem
   class AVR
-    class SubObject
+    class SubObject < BaseObject
       attr_reader :index
 
       def initialize(avr, index)

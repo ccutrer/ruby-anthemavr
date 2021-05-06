@@ -22,11 +22,14 @@ module Anthem
             end
 
             node_name = object.class.name.split("::").last.downcase
+            node_name = 'zone' if node_name == 'zone1'
             node_name << object.index.to_s if object.respond_to?(:index)
             node = homie[node_name]
             next unless node # might not be registered yet
+
             property = node[property_name.to_s.gsub('_', '-')]
             next unless property # might not be registered yet
+
             property.value = value
           end
 
@@ -62,15 +65,17 @@ module Anthem
             name = klass_name.dup
             name << " #{o.index}" unless klass == AVR
             next if homie[id]
-            homie.node(id, name, klass_name) do |n|
-              klass::PROPERTIES.each do |(name, property)|
-                next if name == :input_count
 
-                setter = o.method(:"#{name}=") if o.respond_to?(:"#{name}=")
+            homie.node(id, name, klass_name) do |n|
+              o.class.properties.each do |(pname, property)|
+                next if pname == :input_count
+
+                setter = o.method(:"#{pname}=") if o.respond_to?(:"#{pname}=")
                 kwargs = {}
                 kwargs[:format] = property[:range]
                 kwargs[:format] = AVR.const_get(property[:enum], false) if property[:enum]
-                n.property(name.to_s.gsub('_', '-'), name, property[:datatype], o.send(name), **kwargs, &setter)
+                kwargs[:unit] = property[:unit]
+                n.property(pname.to_s.gsub('_', '-'), pname, property[:datatype], o.send(pname), **kwargs, &setter)
               end
             end
           end

@@ -71,8 +71,6 @@ module Anthem
       "#<#{self.class.name} #{ivs.join(', ')}>"
     end
 
-    PROPERTIES = {}
-
     VIDEO_INPUT_RESOLUTION = [
       :no_input,
       :other,
@@ -274,17 +272,22 @@ module Anthem
       { command: 'WMAC', name: :wifi_mac, datatype: :string, readonly: true },
       { command: 'EMAC', name: :ethernet_mac, datatype: :string, readonly: true },
       { command: 'NMST', name: :network_status, datatype: :string, readonly: true },
-      
-      { command: 'Z1VIR', name: :zone1_video_format, datatype: :enum, enum: :VIDEO_INPUT_RESOLUTION, readonly: true },
-      { command: 'Z1IRH', name: :zone1_horizontal_resolution, datatype: :integer, readonly: true },
-      { command: 'Z1IRV', name: :zone1_vertical_resolution, datatype: :integer, readonly: true },
-      { command: 'Z1AIC', name: :zone1_audio_channels, datatype: :enum, enum: :AUDIO_CHANNELS, readonly: true },
-      { command: 'Z1AIF', name: :zone1_audio_format, datatype: :enum, enum: :AUDIO_FORMAT, readonly: true },
-      { command: 'Z1BRT', name: :zone1_audio_bitrate, datatype: :integer, zero_is_nil: true, readonly: true },
-      { command: 'Z1SRT', name: :zone1_audio_sample_rate, datatype: :integer, zero_is_nil: true, readonly: true },
-      { command: 'Z1BDP', name: :zone1_audio_bitdepth, datatype: :integer, readonly: true },
-      { command: 'Z1AIN', name: :zone1_audio_description, datatype: :string, readonly: true },
-      { command: 'Z1AIR', name: :zone1_audio_rate_description, datatype: :string, readonly: true },
+ 
+      { command: 'ZzVIR', name: :video_format, datatype: :enum, enum: :VIDEO_INPUT_RESOLUTION, readonly: true,
+        zone1: true },
+      { command: 'ZzIRH', name: :horizontal_resolution, datatype: :integer, readonly: true, zone1: true },
+      { command: 'ZzIRV', name: :vertical_resolution, datatype: :integer, readonly: true, zone1: true },
+      { command: 'ZzAIC', name: :audio_channels, datatype: :enum, enum: :AUDIO_CHANNELS, readonly: true,
+        zone1: true },
+      { command: 'ZzAIF', name: :audio_format, datatype: :enum, enum: :AUDIO_FORMAT, readonly: true,
+        zone1: true },
+      { command: 'ZzBRT', name: :audio_bitrate, datatype: :integer, zero_is_nil: true, readonly: true,
+        zone1: true },
+      { command: 'ZzSRT', name: :audio_sample_rate, datatype: :integer, zero_is_nil: true, readonly: true,
+        zone1: true },
+      { command: 'ZzBDP', name: :audio_bitdepth, datatype: :integer, readonly: true, zone1: true },
+      { command: 'ZzAIN', name: :audio_description, datatype: :string, readonly: true, zone1: true },
+      { command: 'ZzAIR', name: :audio_rate_description, datatype: :string, readonly: true, zone1: true },
 
       { command: 'SSAMF', name: :front_speaker_assignment, datatype: :enum, enum: :FRONT_SPEAKER_ASSIGNMENT },
       { command: 'SSAMS', name: :surround_speaker_assignment, datatype: :enum, enum: :SURROUND_SPEAKER_ASSIGNMENT },
@@ -348,10 +351,6 @@ module Anthem
       # TODO: moar
     ].freeze
 
-    def zone1_resolution
-      "#{zone1_horizontal_resolution}x#{zone1_vertical_resolution}" if zone1_horizontal_resolution && zone1_vertical_resolution
-    end
-
     SUB_OBJECT_CLASSES = {
       'i' => Input,
       'p' => Profile,
@@ -372,10 +371,13 @@ module Anthem
       sub_object_type = property[:command] =~ /[ipz]/ && $&
       sub_object_klass = SUB_OBJECT_CLASSES[sub_object_type]
       klass = sub_object_klass || self
+      klass = Zone1 if klass == Zone && property[:zone1]
 
       count = SUB_OBJECT_COUNTS[sub_object_type] || 1
 
       (1..count).each do |i|
+        next if property[:zone1] && i != 1
+
         command = property[:command]
         command = command.sub(sub_object_type, i.to_s) if sub_object_type
 
@@ -383,9 +385,11 @@ module Anthem
       end
 
       next unless property[:name]
-      klass::PROPERTIES[property[:name]] = property
+
+      klass.add_property(property)
 
       next unless property[:datatype]
+
       klass.attr_reader property[:name]
 
       next if property[:readonly]
@@ -440,10 +444,9 @@ module Anthem
         end
       RUBY
     end
-    PROPERTIES.freeze
 
-    # make everything except PROPERTIES private
-    private_constant *(constants.grep(/^[A-Z]+$/) - [:PROPERTIES])
+    # make everything private
+    private_constant(*constants.grep(/^[A-Z]+$/))
 
     def command(command, arg = nil)
       Anthem.logger.debug("Writing #{command}#{arg}")

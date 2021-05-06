@@ -2,7 +2,7 @@ require_relative 'lib/anthem/avr/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "anthemavr"
-  spec.version       = Anthem::AVR::VERSION
+  spec.version       = AnthemAVR::VERSION
   spec.authors       = ["Cody Cutrer"]
   spec.email         = ["cody@cutrer.us"]
 
