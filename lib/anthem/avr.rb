@@ -1,52 +1,36 @@
+require 'anthem/baseobject'
+
+module Anthem
+  class AVR < BaseObject
+  end
+end
+
 require 'anthem/avr/input'
 require 'anthem/avr/profile'
 require 'anthem/avr/zone'
 
 module Anthem
-  class AVR
+  class AVR < BaseObject
     attr_reader :inputs, :profiles, :zones
 
     def initialize(port)
-      uri = URI.parse(port)
-      @io = if uri.scheme == "tcp"
-        require 'socket'
-        TCPSocket.new(uri.host, uri.port || 14999)
-      elsif uri.scheme == "telnet" || uri.scheme == "rfc2217"
-        require 'net/telnet/rfc2217'
-        Net::Telnet::RFC2217.new(uri.host,
-         port: uri.port || 23,
-         baud: 115200,
-         data_bits: 8,
-         parity: :none,
-         stop_bits: 1)
-      else
-        require 'ccutrer-serialport'
-        CCutrer::SerialPort.new(port,
-          baud: 115200,
-          data_bits: 8,
-          parity: :none,
-          stop_bits: 1)
-      end
+      super()
 
+      @port = port
 
       @inputs = [].freeze
-      @zones = (1..2).map do |i|
-        Zone.new(self, i)
-      end.freeze
+      @zones = [Zone1.new(self, 1), Zone.new(self, 2)].freeze
       @profiles = (1..4).map do |i|
         Profile.new(self, i)
       end.freeze
 
-      # populate everything we care about
-      COMMANDS_HASH.each do |(cmd, property)|
-        request(cmd) if property[:datatype]
-      end
-      @read_thread = Thread.new { read_thread }
+      connect
     end
 
     def close
       # this will cause the read thread to die
-      @io.close
+      @io&.close
+      @io = nil
     end
 
     def set_notifier(&block)
@@ -455,15 +439,45 @@ module Anthem
 
     private
 
+    def connect
+      uri = URI.parse(@port)
+      @io = case uri.scheme
+            when 'tcp'
+              require 'socket'
+              TCPSocket.new(uri.host, uri.port || 14_999)
+            when 'telnet', 'rfc2217'
+              require 'net/telnet/rfc2217'
+              Net::Telnet::RFC2217.new(uri.host,
+                                       port: uri.port || 23,
+                                       baud: 115_200,
+                                       data_bits: 8,
+                                       parity: :none,
+                                       stop_bits: 1)
+            else
+              require 'ccutrer-serialport'
+              CCutrer::SerialPort.new(port,
+                                      baud: 115_200,
+                                      data_bits: 8,
+                                      parity: :none,
+                                      stop_bits: 1)
+            end
+      # populate everything we care about
+      COMMANDS_HASH.each do |(cmd, property)|
+        request(cmd) if property[:datatype]
+      end
+      @read_thread = Thread.new { read_thread }
+    end
+
     def request(request)
       Anthem.logger.debug("Writing #{request}?")
       @io.write("#{request}?;")
     end
-    
+
     def refresh_inputs
       request("ICN")
       COMMANDS_HASH.each do |(command, property)|
         next unless property[:command].include?('i')
+
         request(command)
       end
     end
@@ -541,6 +555,14 @@ module Anthem
           @inputs.freeze
         end
         @notifier&.call(object, property[:name], value)
+      end
+    rescue EOFError => e
+      # auto-reconnect
+      begin
+        close
+        connect
+      rescue StandardError
+        raise e
       end
     end
   end
