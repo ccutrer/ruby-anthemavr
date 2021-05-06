@@ -73,7 +73,7 @@ module Anthem
       '2160p60',
       '2160p50',
       '2160p24',
-    ].freeze,
+    ].freeze
 
     AUDIO_CHANNELS = [
       :no_input,
@@ -88,7 +88,6 @@ module Anthem
 
     AUDIO_FORMAT = [
       :no_input,
-      :other,
       'Analog',
       'PCM',
       'Dolby Digital',
@@ -316,12 +315,12 @@ module Anthem
 
       { command: 'GCL', name: :language, datatype: :enum, enum: :LANGUAGE },
       # AVR reports unrecognized?
-      #{ command: 'GCTZ', name: :time_zone_offset, datatype: :float, range: -12.0..14.0 },
+      # { command: 'GCTZ', name: :time_zone_offset, datatype: :float, range: -12.0..14.0 },
       { command: 'GCBU', name: :beta_updates, datatype: :boolean },
       { command: 'GCDU', name: :units, datatype: :enum, enum: :UNITS },
-      { command: 'GCFPB', name: :front_panel_brightness, datatype: :integer, range: 0..100 },
+      { command: 'GCFPB', name: :front_panel_brightness, datatype: :integer, unit: '%', range: 0..100 },
       # AVR reports unrecognized?
-      #{ command: 'GCCWUB', name: :wake_up_brightness, datatype: :integer, range: 0..100 },
+      { command: 'GCWUB', name: :wake_up_brightness, datatype: :integer, unit: '%', range: 0..100 },
       { command: 'GCOSID', name: :on_screen_display_info, datatype: :enum, enum: :ON_SCREEN_DISPLAY },
       { command: 'GCFPDI', name: :front_panel_display_info, datatype: :enum, enum: :FRONT_PANEL_DISPLAY },
       # TODO: moar
