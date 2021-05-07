@@ -245,6 +245,25 @@ module Anthem
       'Volume Only',
     ].freeze
 
+    AUDIO_LISTENING_MODE = [
+      :none,
+      'Anthem Logic - Cinema',
+      'Anthem Logic - Music',
+      'Dolby Surround',
+      'DTS neural:x',
+      # "DTS Virtual:X", # same ID as stereo?
+      'Stereo',
+      'All Channel Stereo',
+      'Mono',
+      'All-Channel Mono'
+    ].freeze
+
+    DOLBY_DIGITAL_DYNAMIC_RANGE = %i[
+      normal
+      reduced
+      late_night
+    ].freeze
+
     PROPERTIES_INTERNAL = [
       { command: 'IDQ' },
       { command: 'IDM', name: :model, datatype: :string, readonly: true },
@@ -272,9 +291,9 @@ module Anthem
         zone1: true },
       { command: 'ZzAIF', name: :audio_format, datatype: :enum, enum: :AUDIO_FORMAT, readonly: true,
         zone1: true },
-      { command: 'ZzBRT', name: :audio_bitrate, datatype: :integer, zero_is_nil: true, readonly: true,
+      { command: 'ZzBRT', name: :audio_bitrate, datatype: :integer, zero_is_nil: true, unit: 'kbps', readonly: true,
         zone1: true },
-      { command: 'ZzSRT', name: :audio_sample_rate, datatype: :integer, zero_is_nil: true, readonly: true,
+      { command: 'ZzSRT', name: :audio_sample_rate, datatype: :integer, zero_is_nil: true, unit: 'kHz', readonly: true,
         zone1: true },
       { command: 'ZzBDP', name: :audio_bitdepth, datatype: :integer, readonly: true, zone1: true },
       { command: 'ZzAIN', name: :audio_description, datatype: :string, readonly: true, zone1: true },
@@ -339,6 +358,9 @@ module Anthem
       { command: 'ZzPVOL', name: :volume_percent, datatype: :integer, range: 0..100 },
       { command: 'ZzMUT', name: :mute, datatype: :boolean },
 
+      { command: 'ZzALM', name: :audio_listening_mode, datatype: :enum, enum: :AUDIO_LISTENING_MODE, zone1: true },
+      { command: 'ZzDYN', name: :dolby_digital_dynamic_range, datatype: :enum, enum: :DOLBY_DIGITAL_DYNAMIC_RANGE,
+        zone1: true }
       # TODO: moar
     ].freeze
 
