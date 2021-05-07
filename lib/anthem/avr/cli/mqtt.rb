@@ -56,7 +56,15 @@ module Anthem
           publish_objects(Input)
 
           homie.publish
-          homie.join
+
+          loop do
+            begin
+              avr.update
+            rescue StandardError => e
+              puts "failed updating: #{e}"
+            end
+            sleep 1
+          end
         end
 
         def publish_objects(klass)

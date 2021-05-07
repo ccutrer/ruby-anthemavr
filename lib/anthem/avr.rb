@@ -49,6 +49,14 @@ module Anthem
       refresh_inputs
     end
 
+    def update
+      return unless zones[0].power
+
+      MANUAL_UPDATES.each do |cmd|
+        request(cmd)
+      end
+    end
+
     def inspect
       useful_ivs = instance_variables - [:@inputs, :@profiles, :@zones, :@read_thread]
       ivs = useful_ivs.map { |iv| "#{iv}=#{instance_variable_get(iv).inspect}" }
@@ -347,6 +355,7 @@ module Anthem
     }.freeze
 
     COMMANDS_HASH = {}
+    MANUAL_UPDATES = []
 
     PROPERTIES_INTERNAL.each do |property|
       property.freeze
@@ -365,6 +374,7 @@ module Anthem
         command = command.sub(sub_object_type, i.to_s) if sub_object_type
 
         COMMANDS_HASH[command] = property
+        MANUAL_UPDATES << command if property[:zone1]
       end
 
       next unless property[:name]
