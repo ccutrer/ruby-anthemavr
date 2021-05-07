@@ -592,7 +592,8 @@ module Anthem
       begin
         close
         connect
-      rescue StandardError
+      rescue StandardError => e2
+        Anthem.logger.error("Could not reconnect: #{e2}")
         raise e
       end
     end
