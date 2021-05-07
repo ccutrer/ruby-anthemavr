@@ -39,12 +39,14 @@ module Anthem
 
     def insert_input(i)
       raise ArgumentError, "input number must be between 1 and 30" unless (1..30).include?(i)
+
       command("IIAI#{i}")
       refresh_inputs
     end
 
     def delete_input(i)
       raise ArgumentError, "input number must be between 1 and 30" unless (1..30).include?(i)
+
       command("IDAI#{i}")
       refresh_inputs
     end
@@ -58,7 +60,7 @@ module Anthem
     end
 
     def inspect
-      useful_ivs = instance_variables - [:@inputs, :@profiles, :@zones, :@read_thread]
+      useful_ivs = instance_variables - %i[@inputs @profiles @zones @read_thread]
       ivs = useful_ivs.map { |iv| "#{iv}=#{instance_variable_get(iv).inspect}" }
       "#<#{self.class.name} #{ivs.join(', ')}>"
     end
@@ -282,7 +284,7 @@ module Anthem
       { command: 'WMAC', name: :wifi_mac, datatype: :string, readonly: true },
       { command: 'EMAC', name: :ethernet_mac, datatype: :string, readonly: true },
       { command: 'NMST', name: :network_status, datatype: :string, readonly: true },
- 
+
       { command: 'ZzVIR', name: :video_format, datatype: :enum, enum: :VIDEO_INPUT_RESOLUTION, readonly: true,
         zone1: true },
       { command: 'ZzIRH', name: :horizontal_resolution, datatype: :integer, readonly: true, zone1: true },
