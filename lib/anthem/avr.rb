@@ -486,7 +486,7 @@ module Anthem
                                        stop_bits: 1)
             else
               require 'ccutrer-serialport'
-              CCutrer::SerialPort.new(port,
+              CCutrer::SerialPort.new(@port,
                                       baud: 115_200,
                                       data_bits: 8,
                                       parity: :none,
