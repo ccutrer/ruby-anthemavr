@@ -22,7 +22,9 @@ module Anthem
 
     class Zone1 < Zone
       def resolution
-        "#{horizontal_resolution}x#{vertical_resolution}" if horizontal_resolution && vertical_resolution
+        return "#{horizontal_resolution}x#{vertical_resolution}" if horizontal_resolution.to_i != 0 && vertical_resolution.to_i != 0
+
+        "no_input"
       end
     end
   end

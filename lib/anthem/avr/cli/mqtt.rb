@@ -38,6 +38,11 @@ module Anthem
             next unless property # might not be registered yet
 
             property.value = value
+
+            if %i[horizontal_resolution vertical_resolution].include?(property_name)
+              property = node['resolution']
+              property.value = avr.zones[0].resolution
+            end
           end
 
           [AVR, Profile, Zone].each do |klass|
@@ -87,6 +92,7 @@ module Anthem
                 kwargs[:unit] = property[:unit]
                 n.property(pname.to_s.gsub('_', '-'), pname, property[:datatype], o.send(pname), **kwargs, &setter)
               end
+              n.property('resolution', 'Video Resolution', :string, o.resolution) if id == 'zone1'
             end
           end
         end
