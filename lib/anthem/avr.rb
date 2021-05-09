@@ -507,6 +507,7 @@ module Anthem
         request(cmd) if property[:datatype]
       end
       @read_thread = Thread.new { read_thread }
+      @read_thread.abort_on_exception = true
     end
 
     def request(request)
@@ -600,8 +601,10 @@ module Anthem
     rescue EOFError => e
       # auto-reconnect
       begin
+        Anthem.logger.warn("connection lost, reconnecting...")
         close
         connect
+        Anthem.logger.info("reconnected")
       rescue StandardError => e2
         Anthem.logger.error("Could not reconnect: #{e2}")
         raise e
