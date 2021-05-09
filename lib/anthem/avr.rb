@@ -356,13 +356,21 @@ module Anthem
 
       { command: 'ZzPOW', name: :power, datatype: :boolean },
       { command: 'ZzINP', name: :input, datatype: :integer, range: 1..30 },
-      { command: 'ZzVOL', name: :volume, datatype: :float, range: -90.0..+10.0, step: 0.5, format: "%+.1f" },
+      { command: 'ZzVOL', name: :volume, datatype: :float, range: -90.0..+10.0, step: 0.5, unit: 'dB',
+        format: '%+.1f' },
       { command: 'ZzPVOL', name: :volume_percent, datatype: :integer, range: 0..100 },
       { command: 'ZzMUT', name: :mute, datatype: :boolean },
 
       { command: 'ZzALM', name: :audio_listening_mode, datatype: :enum, enum: :AUDIO_LISTENING_MODE, zone1: true },
       { command: 'ZzDYN', name: :dolby_digital_dynamic_range, datatype: :enum, enum: :DOLBY_DIGITAL_DYNAMIC_RANGE,
+        zone1: true },
+      { command: 'ZzTON0', name: :bass, datatype: :float, range: -10.0..+10.0, step: 0.5, unit: 'dB', format: '%+.1f',
+        zone1: true },
+      { command: 'ZzTON1', name: :treble, datatype: :float, range: -10.0..+10.0, step: 0.5, unit: 'dB',
+        format: '%+.1f', zone1: true },
+      { command: 'ZzBAL', name: :balance, datatype: :float, range: -5.0..+5.0, step: 0.5, unit: 'dB', format: '%+.1f',
         zone1: true }
+
       # TODO: moar
     ].freeze
 
