@@ -52,7 +52,20 @@ module Anthem
     end
 
     def update
-      return unless zones[0].power
+      unless zones[0].power
+        assign(zones[0], :video_format, :no_input)
+        assign(zones[0], :horizontal_resolution, 0)
+        assign(zones[0], :vertical_resolution, 0)
+        assign(zones[0], :audio_channels, :no_input)
+        assign(zones[0], :audio_format, :no_input)
+        assign(zones[0], :audio_bitrate, 0)
+        assign(zones[0], :audio_sample_rate, 0)
+        assign(zones[0], :audio_bitdepth, 0)
+        assign(zones[0], :audio_description, "No Signal")
+        assign(zones[0], :audio_rate_description, "No Signal")
+
+        return
+      end
 
       MANUAL_UPDATES.each do |cmd|
         request(cmd)
@@ -583,20 +596,19 @@ module Anthem
                   # else; raise "unknown datatype for #{property[:command]}"
                 end
 
-        object.instance_variable_set(:"@#{property[:name]}", value)
-
-        if property[:name] == :input_count
-          @inputs = @inputs.dup
-          if input_count > @inputs.length
-            @inputs.concat(((@inputs.length + 1)..input_count).map do |i|
-              Input.new(self, i)
-            end)
-          else
-            @inputs = @inputs[0...input_count]
+        assign(object, property[:name], value) do
+          if property[:name] == :input_count
+            @inputs = @inputs.dup
+            if input_count > @inputs.length
+              @inputs.concat(((@inputs.length + 1)..input_count).map do |i|
+                Input.new(self, i)
+              end)
+            else
+              @inputs = @inputs[0...input_count]
+            end
+            @inputs.freeze
           end
-          @inputs.freeze
         end
-        @notifier&.call(object, property[:name], value)
       end
     rescue EOFError => e
       # auto-reconnect
@@ -609,6 +621,15 @@ module Anthem
         Anthem.logger.error("Could not reconnect: #{e2}")
         raise e
       end
+    end
+
+    def assign(object, property, value)
+      old_value = object.instance_variable_get(:"@#{property}")
+      return if old_value == value
+
+      object.instance_variable_set(:"@#{property}", value)
+      yield if block_given?
+      @notifier&.call(object, property, value)
     end
   end
 end
