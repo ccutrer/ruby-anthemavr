@@ -90,7 +90,12 @@ module Anthem
                 kwargs[:format] = property[:range]
                 kwargs[:format] = AVR.const_get(property[:enum], false).compact if property[:enum]
                 kwargs[:unit] = property[:unit]
-                n.property(pname.to_s.gsub('_', '-'), pname, property[:datatype], o.send(pname), **kwargs, &setter)
+                if o.respond_to?(pname)
+                  value = o.send(pname)
+                else
+                  kwargs[:retained] = false
+                end
+                n.property(pname.to_s.gsub('_', '-'), pname, property[:datatype], value, **kwargs, &setter)
               end
               n.property('resolution', 'Video Resolution', :string, o.resolution) if id == 'zone1'
             end

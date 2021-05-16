@@ -21,35 +21,38 @@ module Anthem
     end
 
     class Zone1 < Zone
-      def custom_message(message)
-        lines = message.split("\n")[0..3]
+      add_property(name: :custom_message, datatype: :string)
 
-        # auto line wrap if given a single line
-        if lines.length == 1 && lines[0].length > 32
-          original = lines[0]
-          lines = []
-          while lines.length <= 3 do
-            break if original.empty?
+      def custom_message=(message)
+        message = message.gsub("\t", ' ')
+                         .gsub(%r{[^a-zA-Z0-9./ \n-]}, '')
+                         .strip
 
-            # find the max length that fits
-            # this method preserves interior spaces
-            i = original.length
-            loop do
-              break if i < 32 || i.nil?
+        lines = []
+        # auto line wrap
+        while lines.length <= 4
+          break if message.empty?
 
-              i = original.rindex(/\s/, i - 1)
-            end
-            if i.nil?
-              lines << original[0...32]
-              original.clear
-            else
-              lines << original.slice!(0..i).strip
-            end
+          i = message.index("\n")
+          # find the max length that fits
+          # this method preserves interior spaces
+          i ||= message.length
+          loop do
+            break if i.nil? || i < 32
+
+            i = message.rindex(/\s/, i - 1)
           end
+          # force an in-word break if necessary
+          i ||= 31
+          lines << message.slice!(0..i).strip
+          message.strip!
         end
 
         lines.each_with_index do |line, i|
           @avr.command("Z1MSG#{i}#{line[0..32]}")
+        end
+        (lines.length..3).each do |i|
+          @avr.command("Z1MSG#{i}")
         end
       end
 

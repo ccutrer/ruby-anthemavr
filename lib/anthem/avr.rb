@@ -329,6 +329,8 @@ module Anthem
       { command: 'ZzBDP', name: :audio_bitdepth, datatype: :integer, readonly: true, zone1: true },
       { command: 'ZzAIN', name: :audio_description, datatype: :string, readonly: true, zone1: true },
       { command: 'ZzAIR', name: :audio_rate_description, datatype: :string, readonly: true, zone1: true },
+      { command: 'ZzSHC', name: :show_custom_message, datatype: :boolean, zone1: true, poll: false },
+
 
       { command: 'SSAMF', name: :front_speaker_assignment, datatype: :enum, enum: :FRONT_SPEAKER_ASSIGNMENT },
       { command: 'SSAMS', name: :surround_speaker_assignment, datatype: :enum, enum: :SURROUND_SPEAKER_ASSIGNMENT },
@@ -451,7 +453,7 @@ module Anthem
         command = command.sub(sub_object_type, i.to_s) if sub_object_type
 
         COMMANDS_HASH[command] = property
-        MANUAL_UPDATES << command if property[:zone1]
+        MANUAL_UPDATES << command if property[:zone1] && property[:poll] != false
       end
 
       next unless property[:name]
