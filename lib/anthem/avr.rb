@@ -260,6 +260,22 @@ module Anthem
       'Volume Only',
     ].freeze
 
+    VOLUME_SCALE = %w[
+      Percent
+      dB
+    ].freeze
+
+    NO_SIGNAL_POWER_OFF = [
+      '5 minutes',
+      '10 minutes',
+      '20 minutes',
+      '1 hour',
+      '2 hours',
+      '6 hours',
+      nil,
+      'Never'
+    ].freeze
+
     AUDIO_LISTENING_MODE = [
       :none,
       'Anthem Logic - Cinema',
@@ -361,10 +377,23 @@ module Anthem
       { command: 'GCBU', name: :beta_updates, datatype: :boolean },
       { command: 'GCDU', name: :units, datatype: :enum, enum: :UNITS },
       { command: 'GCFPB', name: :front_panel_brightness, datatype: :integer, unit: '%', range: 0..100 },
-      # AVR reports unrecognized?
       { command: 'GCWUB', name: :wake_up_brightness, datatype: :integer, unit: '%', range: 0..100 },
       { command: 'GCOSID', name: :on_screen_display_info, datatype: :enum, enum: :ON_SCREEN_DISPLAY },
       { command: 'GCFPDI', name: :front_panel_display_info, datatype: :enum, enum: :FRONT_PANEL_DISPLAY },
+      # AVR reports unrecognized?
+      # { command: 'GVMVS', name: :volume_scale, datatype: :enum, enum: :VOLUME_SCALE },
+      # AVR reports unrecognized?
+      # { command: 'GVML', name: :mute_level, datatype: :integer, unit: 'dB', range: -50..-5 },
+      { command: 'GCMMV', name: :maximum_volume, datatype: :float, range: -40..+10, unit: 'dB', zone: 1 },
+      { command: 'GCZ2MMV', name: :maximum_volume, datatype: :float, range: -40..+10, unit: 'dB', zone: 2 },
+      { command: 'GCMPOV', name: :power_on_volume, datatype: :float, range: -90..+10, unit: 'dB', zone: 1 },
+      { command: 'GCZ2POV', name: :power_on_volume, datatype: :float, range: -90..+10, unit: 'dB', zone: 2 },
+      { command: 'GCMPOI', name: :power_on_input, datatype: :integer, range: 0..30, zone: 1 },
+      { command: 'GCZ2POI', name: :power_on_input, datatype: :integer, range: 0..30, zone: 2 },
+      { command: 'GCNSPO', name: :no_signal_power_off, datatype: :enum, enum: :NO_SIGNAL_POWER_OFF },
+      { command: 'GCRIR', name: :rear_ir, datatype: :boolean },
+      { command: 'GCFIR', name: :front_ir, datatype: :boolean },
+
       # TODO: moar
 
       { command: 'ZzPOW', name: :power, datatype: :boolean },
@@ -409,6 +438,9 @@ module Anthem
       sub_object_klass = SUB_OBJECT_CLASSES[sub_object_type]
       klass = sub_object_klass || self
       klass = Zone1 if klass == Zone && property[:zone1]
+      if property[:zone]
+        klass = property[:zone] == 1 ? Zone1 : Zone
+      end
 
       count = SUB_OBJECT_COUNTS[sub_object_type] || 1
 
@@ -585,6 +617,8 @@ module Anthem
           # we might not have all zones defined
           next unless object
         end
+
+        object = zones[property[:zone] - 1] if property[:zone]
 
         raw_value = command[property[:command].length..-1]
         value = case property[:datatype]

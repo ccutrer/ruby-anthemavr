@@ -88,7 +88,7 @@ module Anthem
                 setter = o.method(:"#{pname}=") if o.respond_to?(:"#{pname}=")
                 kwargs = {}
                 kwargs[:format] = property[:range]
-                kwargs[:format] = AVR.const_get(property[:enum], false) if property[:enum]
+                kwargs[:format] = AVR.const_get(property[:enum], false).compact if property[:enum]
                 kwargs[:unit] = property[:unit]
                 n.property(pname.to_s.gsub('_', '-'), pname, property[:datatype], o.send(pname), **kwargs, &setter)
               end
