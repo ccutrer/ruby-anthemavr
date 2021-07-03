@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'anthem/avr/subobject'
 
 module Anthem
@@ -48,18 +50,20 @@ module Anthem
           message.strip!
         end
 
-        lines.each_with_index do |line, i|
-          @avr.command("Z1MSG#{i}#{line[0..32]}")
+        lines.each_with_index do |line, index|
+          @avr.command("Z1MSG#{index}#{line[0..32]}")
         end
-        (lines.length..3).each do |i|
-          @avr.command("Z1MSG#{i}")
+        (lines.length..3).each do |index|
+          @avr.command("Z1MSG#{index}")
         end
       end
 
       def resolution
-        return "#{horizontal_resolution}x#{vertical_resolution}" if horizontal_resolution.to_i != 0 && vertical_resolution.to_i != 0
+        if horizontal_resolution.to_i != 0 && vertical_resolution.to_i != 0
+          return "#{horizontal_resolution}x#{vertical_resolution}"
+        end
 
-        "no_input"
+        'no_input'
       end
     end
   end

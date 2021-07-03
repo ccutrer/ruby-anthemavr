@@ -1,10 +1,12 @@
-require "anthem/avr"
-require "logger"
+# frozen_string_literal: true
+
+require 'anthem/avr'
+require 'logger'
 
 module Anthem
   class << self
     def logger
-      @logger ||= Logger.new(STDOUT)
+      @logger ||= Logger.new($stdout)
     end
   end
 end

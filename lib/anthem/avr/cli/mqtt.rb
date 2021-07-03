@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'homie-mqtt'
 
 module Anthem
@@ -28,7 +30,7 @@ module Anthem
               next
             end
 
-            node_name = object.class.name.split("::").last.downcase
+            node_name = object.class.name.split('::').last.downcase
             node_name = 'zone' if node_name == 'zone1'
             node_name << object.index.to_s if object.respond_to?(:index)
             node = homie[node_name]
@@ -49,12 +51,12 @@ module Anthem
             publish_objects(klass)
           end
 
-          node = homie["avr"]
-          node.property("insert-input", "Insert input at index", :integer, retained: false, format: 1..30) do |value|
+          node = homie['avr']
+          node.property('insert-input', 'Insert input at index', :integer, retained: false, format: 1..30) do |value|
             avr.insert_input(value)
           end
 
-          node.property("delete-input", "Delete input at index", :integer, retained: false, format: 1..30) do |value|
+          node.property('delete-input', 'Delete input at index', :integer, retained: false, format: 1..30) do |value|
             avr.delete_input(value)
           end
 
@@ -73,7 +75,7 @@ module Anthem
         end
 
         def publish_objects(klass)
-          klass_name = klass.name.split("::").last
+          klass_name = klass.name.split('::').last
           objects = klass == AVR ? [avr] : avr.send(:"#{klass_name.downcase}s")
           objects.each do |o|
             id = "#{klass_name.downcase}#{o.index unless klass == AVR}"

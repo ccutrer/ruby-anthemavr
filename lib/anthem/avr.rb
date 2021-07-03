@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'anthem/baseobject'
 
 module Anthem
@@ -33,21 +35,21 @@ module Anthem
       @io = nil
     end
 
-    def set_notifier(&block)
+    def set_notifier(&block) # rubocop:disable Naming/AccessorMethodName
       @notifier = block
     end
 
-    def insert_input(i)
-      raise ArgumentError, "input number must be between 1 and 30" unless (1..30).include?(i)
+    def insert_input(index)
+      raise ArgumentError, 'input number must be between 1 and 30' unless (1..30).include?(index)
 
-      command("IIAI#{i}")
+      command("IIAI#{index}")
       refresh_inputs
     end
 
-    def delete_input(i)
-      raise ArgumentError, "input number must be between 1 and 30" unless (1..30).include?(i)
+    def delete_input(index)
+      raise ArgumentError, 'input number must be between 1 and 30' unless (1..30).include?(index)
 
-      command("IDAI#{i}")
+      command("IDAI#{index}")
       refresh_inputs
     end
 
@@ -61,8 +63,8 @@ module Anthem
         assign(zones[0], :audio_bitrate, 0)
         assign(zones[0], :audio_sample_rate, 0)
         assign(zones[0], :audio_bitdepth, 0)
-        assign(zones[0], :audio_description, "No Signal")
-        assign(zones[0], :audio_rate_description, "No Signal")
+        assign(zones[0], :audio_description, 'No Signal')
+        assign(zones[0], :audio_rate_description, 'No Signal')
 
         return
       end
@@ -95,18 +97,18 @@ module Anthem
       '3D',
       '2160p60',
       '2160p50',
-      '2160p24',
+      '2160p24'
     ].freeze
 
     AUDIO_CHANNELS = [
       :no_input,
       :other,
-      "Mono",
-      "Stereo",
-      "5.1",
-      "7.1",
-      "Atmos",
-      "DTS-X",
+      'Mono',
+      'Stereo',
+      '5.1',
+      '7.1',
+      'Atmos',
+      'DTS-X'
     ].freeze
 
     AUDIO_FORMAT = [
@@ -117,20 +119,20 @@ module Anthem
       'DSD',
       'DTS',
       'Atmos',
-      'DTS-X',
+      'DTS-X'
     ].freeze
 
     FRONT_SPEAKER_ASSIGNMENT = [
       'Front',
       'Zone 2',
       'Front Wide',
-      'Height 3',
+      'Height 3'
     ].freeze
 
     SURROUND_SPEAKER_ASSIGNMENT = [
       'Surround',
       'Zone 2',
-      'Height 3',
+      'Height 3'
     ].freeze
 
     BACK_SPEAKER_ASSIGNMENT = [
@@ -138,25 +140,25 @@ module Anthem
       'Zone 2',
       'Zone 2 On Demand',
       'Front Wide',
-      'Front Bi-Amp',
+      'Front Bi-Amp'
     ].freeze
 
     HEIGHT1_SPEAKER_ASSIGNMENT = [
       'Height 1',
       'Zone 2',
-      'Front Bi-Amp',
+      'Front Bi-Amp'
     ].freeze
 
     HEIGHT2_SPEAKER_ASSIGNMENT = [
       'Height 2',
       'Zone 2',
       'Front Wide',
-      'Front Bi-Amp',
+      'Front Bi-Amp'
     ].freeze
 
-    HEIGHT_SPEAKER_ROLE = [
-      'Height',
-      'Back'
+    HEIGHT_SPEAKER_ROLE = %w[
+      Height
+      Back
     ].freeze
 
     HEIGHT1_SPEAKER_ROLE = [
@@ -168,7 +170,7 @@ module Anthem
       'Back In-Ceiling',
       'Back Dolby',
       'Back On_Wall',
-      'Off',
+      'Off'
     ].freeze
 
     HEIGHT2_SPEAKER_ROLE = [
@@ -177,14 +179,14 @@ module Anthem
       'Back In-Ceiling',
       'Back Dolby',
       'Back On_Wall',
-      'Off',
+      'Off'
     ].freeze
 
     HEIGHT3_SPEAKER_ROLE = [
       'Back In-Ceiling',
       'Back Dolby',
       'Back On_Wall',
-      'Off',
+      'Off'
     ].freeze
 
     AUDIO_JACK = [
@@ -202,13 +204,13 @@ module Anthem
       'Analog 4',
       'Analog 5',
       'Streaming',
-      'Bluetooth',
+      'Bluetooth'
     ].freeze
 
     MONO_PRESET = [
       'Mono',
       'Last Used',
-      'All Channel Mono',
+      'All Channel Mono'
     ].freeze
 
     STEREO_PRESET = [
@@ -221,7 +223,7 @@ module Anthem
       'DTS Virtual:X',
       'All Channel Stereo',
       'Mono',
-      'All Channel Mono',
+      'All Channel Mono'
     ].freeze
 
     MULTICHANNEL_PRESET = [
@@ -232,7 +234,7 @@ module Anthem
       'DTS Virtual:X',
       'All Channel Stereo',
       'Mono',
-      'All Channel Mono',
+      'All Channel Mono'
     ].freeze
 
     LANGUAGE = %w[
@@ -252,12 +254,12 @@ module Anthem
     ON_SCREEN_DISPLAY = [
       'Off',
       '16:9',
-      '2.4:1',
+      '2.4:1'
     ].freeze
 
     FRONT_PANEL_DISPLAY = [
       'All',
-      'Volume Only',
+      'Volume Only'
     ].freeze
 
     VOLUME_SCALE = %w[
@@ -330,7 +332,6 @@ module Anthem
       { command: 'ZzAIN', name: :audio_description, datatype: :string, readonly: true, zone1: true },
       { command: 'ZzAIR', name: :audio_rate_description, datatype: :string, readonly: true, zone1: true },
       { command: 'ZzSHC', name: :show_custom_message, datatype: :boolean, zone1: true, poll: false },
-
 
       { command: 'SSAMF', name: :front_speaker_assignment, datatype: :enum, enum: :FRONT_SPEAKER_ASSIGNMENT },
       { command: 'SSAMS', name: :surround_speaker_assignment, datatype: :enum, enum: :SURROUND_SPEAKER_ASSIGNMENT },
@@ -421,18 +422,17 @@ module Anthem
     SUB_OBJECT_CLASSES = {
       'i' => Input,
       'p' => Profile,
-      'z' => Zone,
+      'z' => Zone
     }.freeze
 
     SUB_OBJECT_COUNTS = {
       'i' => 30,
       'p' => 4,
-      'z' => 2,
+      'z' => 2
     }.freeze
 
-    COMMANDS_HASH = {}
-    MANUAL_UPDATES = []
-
+    commands_hash = {}
+    manual_updates = []
     PROPERTIES_INTERNAL.each do |property|
       property.freeze
 
@@ -452,8 +452,8 @@ module Anthem
         command = property[:command]
         command = command.sub(sub_object_type, i.to_s) if sub_object_type
 
-        COMMANDS_HASH[command] = property
-        MANUAL_UPDATES << command if property[:zone1] && property[:poll] != false
+        commands_hash[command] = property
+        manual_updates << command if property[:zone1] && property[:poll] != false
       end
 
       next unless property[:name]
@@ -506,16 +506,19 @@ module Anthem
         raise "Unknown datatype #{property[:datatype].inspect} for #{property[:command]}"
       end
 
-      avr = "@avr." unless klass == self
+      avr = '@avr.' unless klass == self
       command = property[:command].inspect
       command = command.sub(sub_object_type, '#{index}') if sub_object_type # rubocop:disable Lint/InterpolationCheck
-      klass.class_eval <<~RUBY, __FILE__, __LINE__ + 1
+      klass.class_eval <<~RUBY, __FILE__, __LINE__ + 1 # rubocop:disable Style/DocumentDynamicEvalDefinition
         def #{property[:name]}=(value)
           #{code}
           #{avr}command(#{command}, value.to_s)
         end
       RUBY
     end
+
+    COMMANDS_HASH = commands_hash.freeze
+    MANUAL_UPDATES = manual_updates.freeze
 
     # make everything private
     private_constant(*constants.grep(/^[A-Z]+$/))
@@ -563,7 +566,7 @@ module Anthem
     end
 
     def refresh_inputs
-      request("ICN")
+      request('ICN')
       COMMANDS_HASH.each do |(command, property)|
         next unless property[:command].include?('i')
 
@@ -573,7 +576,7 @@ module Anthem
 
     def read_thread
       loop do
-        command = @io.readline(";")[0..-2]
+        command = @io.readline(';')[0..-2]
 
         if command[0] == '!'
           error_type = command[1]
@@ -624,11 +627,11 @@ module Anthem
 
         raw_value = command[property[:command].length..-1]
         value = case property[:datatype]
-                when :string; raw_value
-                when :boolean; raw_value.to_i == 1
-                when :integer; raw_value.to_i
-                when :float; raw_value.to_f
-                when :enum; self.class.const_get(property[:enum], false)[raw_value.to_i]
+                when :string then raw_value
+                when :boolean then raw_value.to_i == 1
+                when :integer then raw_value.to_i
+                when :float then raw_value.to_f
+                when :enum then self.class.const_get(property[:enum], false)[raw_value.to_i]
                   # else; raise "unknown datatype for #{property[:command]}"
                 end
 
@@ -649,10 +652,10 @@ module Anthem
     rescue EOFError => e
       # auto-reconnect
       begin
-        Anthem.logger.warn("connection lost, reconnecting...")
+        Anthem.logger.warn('connection lost, reconnecting...')
         close
         connect
-        Anthem.logger.info("reconnected")
+        Anthem.logger.info('reconnected')
       rescue StandardError => e2
         Anthem.logger.error("Could not reconnect: #{e2}")
         raise e
