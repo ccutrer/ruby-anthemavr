@@ -21,12 +21,7 @@ module Anthem
 
           avr.set_notifier do |object, property_name, value|
             if property_name == :input_count
-              publish_objects(Input)
-              homie.init do
-                ((value + 1)..30).each do |i|
-                  homie.remove_node("input#{i}")
-                end
-              end
+              republish_inputs
               next
             end
 
@@ -71,6 +66,15 @@ module Anthem
               puts "failed updating: #{e}"
             end
             sleep 1
+          end
+        end
+
+        def republish_inputs
+          homie.init do
+            homie.each do |node|
+              homie.remove_node(node.id) if node.id.start_with?('input')
+            end
+            publish_objects(Input)
           end
         end
 
