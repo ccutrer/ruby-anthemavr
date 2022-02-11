@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'anthem/avr/subobject'
+require "anthem/avr/subobject"
 
 module Anthem
   class AVR
@@ -26,8 +26,8 @@ module Anthem
       add_property(name: :custom_message, datatype: :string)
 
       def custom_message=(message)
-        message = message.gsub("\t", ' ')
-                         .gsub(%r{[^a-zA-Z0-9./ \n-]}, '')
+        message = message.tr("\t", " ")
+                         .gsub(%r{[^a-zA-Z0-9./ \n-]}, "")
                          .strip
 
         lines = []
@@ -63,7 +63,7 @@ module Anthem
           return "#{horizontal_resolution}x#{vertical_resolution}"
         end
 
-        'no_input'
+        "no_input"
       end
     end
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'anthem/avr/subobject'
+require "anthem/avr/subobject"
 
 module Anthem
   class AVR

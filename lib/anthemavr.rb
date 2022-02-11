@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'anthem/avr'
-require 'logger'
+require "anthem/avr"
+require "logger"
 
 module Anthem
   class << self

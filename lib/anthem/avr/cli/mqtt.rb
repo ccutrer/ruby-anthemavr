@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'homie-mqtt'
+require "homie-mqtt"
 
 module Anthem
   class AVR
@@ -29,19 +29,19 @@ module Anthem
               next
             end
 
-            node_name = object.class.name.split('::').last.downcase
-            node_name = +'zone' if node_name == 'zone1'
+            node_name = object.class.name.split("::").last.downcase
+            node_name = +"zone" if node_name == "zone1"
             node_name << object.index.to_s if object.respond_to?(:index)
             node = homie[node_name]
             next unless node # might not be registered yet
 
-            property = node[property_name.to_s.gsub('_', '-')]
+            property = node[property_name.to_s.tr("_", "-")]
             next unless property # might not be registered yet
 
             property.value = value
 
             if %i[horizontal_resolution vertical_resolution].include?(property_name)
-              property = node['resolution']
+              property = node["resolution"]
               property.value = avr.zones[0].resolution
             end
           end
@@ -50,12 +50,12 @@ module Anthem
             publish_objects(klass)
           end
 
-          node = homie['avr']
-          node.property('insert-input', 'Insert input at index', :integer, retained: false, format: 1..30) do |value|
+          node = homie["avr"]
+          node.property("insert-input", "Insert input at index", :integer, retained: false, format: 1..30) do |value|
             avr.insert_input(value)
           end
 
-          node.property('delete-input', 'Delete input at index', :integer, retained: false, format: 1..30) do |value|
+          node.property("delete-input", "Delete input at index", :integer, retained: false, format: 1..30) do |value|
             avr.delete_input(value)
           end
 
@@ -76,7 +76,7 @@ module Anthem
         def republish_inputs(starting_at = nil)
           homie.init do
             homie.each do |node|
-              if node.id.start_with?('input') &&
+              if node.id.start_with?("input") &&
                  (starting_at.nil? || node.id[5..-1].to_i >= starting_at)
                 homie.remove_node(node.id)
               end
@@ -86,7 +86,7 @@ module Anthem
         end
 
         def publish_objects(klass)
-          klass_name = klass.name.split('::').last
+          klass_name = klass.name.split("::").last
           objects = klass == AVR ? [avr] : avr.send(:"#{klass_name.downcase}s")
           objects.each do |o|
             id = "#{klass_name.downcase}#{o.index unless klass == AVR}"
@@ -108,9 +108,9 @@ module Anthem
                 else
                   kwargs[:retained] = false
                 end
-                n.property(pname.to_s.gsub('_', '-'), pname, property[:datatype], value, **kwargs, &setter)
+                n.property(pname.to_s.tr("_", "-"), pname, property[:datatype], value, **kwargs, &setter)
               end
-              n.property('resolution', 'Video Resolution', :string, o.resolution) if id == 'zone1'
+              n.property("resolution", "Video Resolution", :string, o.resolution) if id == "zone1"
             end
           end
         end

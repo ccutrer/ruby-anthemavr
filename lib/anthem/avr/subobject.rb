@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'anthem/baseobject'
+require "anthem/baseobject"
 
 module Anthem
   class AVR
@@ -16,7 +16,7 @@ module Anthem
       def inspect
         useful_ivs = instance_variables - [:@avr]
         ivs = useful_ivs.map { |iv| "#{iv}=#{instance_variable_get(iv).inspect}" }
-        "#<#{self.class.name} #{ivs.join(', ')}>"
+        "#<#{self.class.name} #{ivs.join(", ")}>"
       end
     end
   end
