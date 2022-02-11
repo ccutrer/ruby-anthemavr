@@ -24,9 +24,13 @@ module Anthem
               republish_inputs
               next
             end
+            if %i[insert_input delete_input].include?(property_name)
+              republish_inputs(value)
+              next
+            end
 
             node_name = object.class.name.split('::').last.downcase
-            node_name = 'zone' if node_name == 'zone1'
+            node_name = +'zone' if node_name == 'zone1'
             node_name << object.index.to_s if object.respond_to?(:index)
             node = homie[node_name]
             next unless node # might not be registered yet
@@ -62,17 +66,20 @@ module Anthem
           loop do
             begin
               avr.update
-            rescue StandardError => e
-              puts "failed updating: #{e}"
+            rescue => e
+              Anthem.logger.error("failed updating: #{e}")
             end
             sleep 1
           end
         end
 
-        def republish_inputs
+        def republish_inputs(starting_at = nil)
           homie.init do
             homie.each do |node|
-              homie.remove_node(node.id) if node.id.start_with?('input')
+              if node.id.start_with?('input') &&
+                 (starting_at.nil? || node.id[5..-1].to_i >= starting_at)
+                homie.remove_node(node.id)
+              end
             end
             publish_objects(Input)
           end

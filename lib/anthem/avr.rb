@@ -43,14 +43,12 @@ module Anthem
       raise ArgumentError, 'input number must be between 1 and 30' unless (1..30).include?(index)
 
       command("IIAI#{index}")
-      refresh_inputs
     end
 
     def delete_input(index)
       raise ArgumentError, 'input number must be between 1 and 30' unless (1..30).include?(index)
 
       command("IDAI#{index}")
-      refresh_inputs
     end
 
     def update
@@ -466,14 +464,16 @@ module Anthem
 
       next if property[:readonly]
 
+      code = +''
+
       case property[:datatype]
       when :boolean
-        code = <<-RUBY
+        code << <<-RUBY
           raise ArgumentError, "Expected true or false" unless [true, false].include?(value)
           value = value ? "1" : "0"
         RUBY
       when :integer
-        code = <<~RUBY
+        code << <<~RUBY
           raise ArgumentError, "expected integer" unless value.is_a?(Integer)
         RUBY
         code << <<~RUBY if property[:range]
@@ -481,7 +481,7 @@ module Anthem
           raise ArgumentError, "value out of valid range #{property[:range].inspect}" unless (#{property[:range].inspect}).include?(value)
         RUBY
       when :float
-        code = <<~RUBY
+        code << <<~RUBY
           raise ArgumentError, "expected integer" unless value.is_a?(Numeric)
         RUBY
         code << <<~RUBY if property[:range]
@@ -494,12 +494,12 @@ module Anthem
           value = #{property[:format].inspect} % value
         RUBY
       when :string
-        code = <<~RUBY
+        code << <<~RUBY
           raise ArgumentError, "expected string" unless value.is_a?(String)
           raise ArgumentError, "value is too long" unless value.length < #{property[:max_length]}
         RUBY
       when :enum
-        code = <<~RUBY
+        code << <<~RUBY
           raise ArgumentError, "expected one of #{property[:enum]}.join(' ')" unless (value = #{property[:enum]}.index(value))
         RUBY
       else
@@ -556,22 +556,13 @@ module Anthem
       COMMANDS_HASH.each do |(cmd, property)|
         request(cmd) if property[:datatype]
       end
+      Thread.abort_on_exception = true
       @read_thread = Thread.new { read_thread }
-      @read_thread.abort_on_exception = true
     end
 
     def request(request)
       Anthem.logger.debug("Writing #{request}?")
       @io.write("#{request}?;")
-    end
-
-    def refresh_inputs
-      request('ICN')
-      COMMANDS_HASH.each do |(command, property)|
-        next unless property[:command].include?('i')
-
-        request(command)
-      end
     end
 
     def read_thread
@@ -587,6 +578,30 @@ module Anthem
           when 'R' then Anthem.logger.error("Out of range: #{command}")
           when 'Z' then Anthem.logger.warn("Cannot execute command #{command} at this time because the zone is off")
           end
+          next
+        end
+
+        if command =~ /^IDAI(\d+)$/
+          Anthem.logger.debug("Received #{command.inspect}")
+
+          id = $1.to_i
+          @inputs = @inputs.dup
+          inputs.delete_at(id - 1)
+          inputs.freeze
+          @notifier&.call(nil, :delete_input, id)
+          next
+        end
+        if command =~ /^IIAI(\d+)$/
+          Anthem.logger.debug("Received #{command.inspect}")
+
+          id = $1.to_i
+          @inputs = @inputs.dup
+          inputs.insert(id - 1, Input.new(self, id))
+          inputs.freeze
+          inputs[id..-1].each_with_index do |input, i|
+            input.instance_variable_set(:@index, i + 1)
+          end
+          @notifier&.call(nil, :insert_input, id)
           next
         end
 
