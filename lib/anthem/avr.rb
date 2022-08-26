@@ -664,15 +664,20 @@ module Anthem
           end
         end
       end
-    rescue EOFError => e
+    rescue EOFError, Errno::ECONNRESET => e
       # auto-reconnect
+      attempts = 0
       begin
-        Anthem.logger.warn("connection lost, reconnecting...")
+        Anthem.logger.warn("connection lost, reconnecting... #{e}")
         close
         connect
         Anthem.logger.info("reconnected")
       rescue => e2
         Anthem.logger.error("Could not reconnect: #{e2}")
+        if (attempts += 1) < 3
+          sleep attempts
+          retry
+        end
         raise e
       end
     end
