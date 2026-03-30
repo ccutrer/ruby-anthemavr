@@ -15,11 +15,13 @@ GEM
     ccutrer-serialport (1.1.0)
       ffi (~> 1.9, >= 1.9.3)
     ffi (1.15.5)
-    homie-mqtt (1.6.3)
+    homie-mqtt (1.8.2)
       mqtt-ccutrer (~> 1.0, >= 1.0.3)
       ruby2_keywords (~> 0.0.5)
     json (2.6.2)
-    mqtt-ccutrer (1.0.3)
+    logger (1.7.0)
+    mqtt-ccutrer (1.1.0)
+      logger (~> 1.7)
     net-telnet (0.2.0)
     net-telnet-rfc2217 (1.0.2)
       net-telnet (~> 0.2.0)
@@ -64,4 +66,4 @@ DEPENDENCIES
   rubocop-rake (~> 0.6)
 
 BUNDLED WITH
-   2.1.4
+   2.6.9
